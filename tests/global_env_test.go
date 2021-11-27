@@ -7,22 +7,27 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_Env(t *testing.T) {
+func Test_Env_Single(t *testing.T) {
 	c := CreateContextAndInit(t)
 
-	devYml := `env: {TESTVAR: TESTVALUE}`
-
-	c.Write("dev.yml", devYml)
+	c.Write("dev.yml", `env: {KEY1: VAL1}`)
 
 	lines := c.Run("bud up", context.ExitCode(0))
 	OutputEqual(t, lines, "◼︎ Env")
+	require.Equal(t, "VAL1", c.GetEnv("KEY1"))
 
-	value := c.GetEnv("TESTVAR")
-	require.Equal(t, "TESTVALUE", value)
+	// Add a second var
+
+	c.Write("dev.yml", `env: {KEY1: VAL1, KEY2: VAL2}`)
+
+	lines = c.Run("bud up", context.ExitCode(0))
+	OutputEqual(t, lines, "◼︎ Env")
+	require.Equal(t, "VAL1", c.GetEnv("KEY1"))
+	require.Equal(t, "VAL2", c.GetEnv("KEY2"))
 
 	// Clean the env when leaving the project directory
-	c.Run("cd /")
 
-	value = c.GetEnv("TESTVAR")
-	require.Equal(t, "", value)
+	c.Run("cd /")
+	require.Equal(t, "", c.GetEnv("KEY1"))
+	require.Equal(t, "", c.GetEnv("KEY2"))
 }
