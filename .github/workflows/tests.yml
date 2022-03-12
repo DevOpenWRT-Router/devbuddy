@@ -1,12 +1,8 @@
 name: tests
 
 on:
-  push:
-    tags:
-      - v*
-    branches:
-      - master
-  pull_request:
+  repository_dispatch: null
+  workflow_dispatch:
 
 env:
   TEST_DOCKER_IMAGE: ghcr.io/devbuddy/docker-testing:sha-f11e362
